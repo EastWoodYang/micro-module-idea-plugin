@@ -57,7 +57,7 @@ public class AndroidNewProjectAction extends com.android.tools.idea.actions.Andr
             String s = null;
             while ((s = br.readLine()) != null) {
                 if (s.contains("classpath 'com.android.tools.build")) {
-                    s = s + System.lineSeparator() + "        classpath \"com.eastwood.tools.plugin:micro-module:1.0.0\"";
+                    s = s + System.lineSeparator() + "        classpath \"com.eastwood.tools.plugins:micro-module:1.0.0\"";
                 }
                 result.append(s + System.lineSeparator());
             }

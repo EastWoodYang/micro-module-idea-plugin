@@ -6,7 +6,7 @@
 
   <description><![CDATA[
       Provides an action which allow you quickly create MicroModule.<br>
-      you will find "New Project/Module with MicroModule..." action in [File]->[New] group. <br>
+      You will find "New Project/Module with MicroModule..." action in [File]->[New] group. <br>
       Right click on project or module dir, in [New] group, you will find "MicroModule" action.<br>
     ]]></description>
 
