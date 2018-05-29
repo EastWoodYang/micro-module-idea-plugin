@@ -23,7 +23,6 @@ public class AndroidNewMicroModuleAction extends AnAction {
         DataContext dataContext = e.getDataContext();
         Module module = DataKeys.MODULE.getData(dataContext);
 
-
         VirtualFile file = DataKeys.VIRTUAL_FILE.getData(dataContext);
         if (module != null && file != null && module.getName().equals(file.getName()) && !file.getName().equals(e.getProject().getName())) {
             e.getPresentation().setVisible(true);

@@ -1,30 +1,27 @@
 package com.eastwood.tools.idea.micromodule;
 
 import com.android.tools.idea.gradle.project.sync.GradleSyncInvoker;
-import com.android.tools.idea.gradle.variant.view.BuildVariantView;
 import com.android.tools.idea.observable.core.StringProperty;
 import com.android.tools.idea.observable.core.StringValueProperty;
 import com.android.tools.idea.wizard.model.WizardModel;
 import com.eastwood.tools.idea.Utils;
-import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.module.Module;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
-
-import static com.google.wireless.android.sdk.stats.GradleSyncStats.Trigger.TRIGGER_USER_REQUEST;
 
 public class NewMicroModuleModel extends WizardModel {
 
     private Module module;
+    private File moduleDir;
 
     private final StringProperty myMicroModuleName = new StringValueProperty();
     private final StringProperty myPackageName = new StringValueProperty();
 
     public NewMicroModuleModel(Module module) {
         this.module = module;
+        moduleDir = new File(module.getModuleFile().getParent().getPath());
     }
 
     public StringProperty microModuleName() {
@@ -36,7 +33,7 @@ public class NewMicroModuleModel extends WizardModel {
     }
 
     public boolean validateMicroModuleName(String name) {
-        File microModuleDir = new File(module.getProject().getBasePath() + File.separator + module.getName(), name);
+        File microModuleDir = new File(moduleDir, name);
         return microModuleDir.exists();
     }
 
@@ -49,9 +46,8 @@ public class NewMicroModuleModel extends WizardModel {
     }
 
     private void createMicroModule() {
-        File microModuleDir = getMicroModuleDir();
+        File microModuleDir = new File(moduleDir, myMicroModuleName.get());
         microModuleDir.mkdirs();
-
         File buildFile = new File(microModuleDir, "build.gradle");
         Utils.write(buildFile, "dependencies {\n//    implementation microModule(':micro-module-name')\n}");
 
@@ -77,7 +73,6 @@ public class NewMicroModuleModel extends WizardModel {
     }
 
     private void includeMicroModule() {
-        File moduleDir = new File(module.getProject().getBasePath(), module.getName());
         File buildFile = new File(moduleDir, "build.gradle");
         StringBuilder result = new StringBuilder();
         boolean include = false;
@@ -87,7 +82,7 @@ public class NewMicroModuleModel extends WizardModel {
             while ((s = br.readLine()) != null) {
                 if (s.contains("microModule")) {
                     String content = s.trim();
-                    if(content.startsWith("microModule") && content.endsWith("{")) {
+                    if (content.startsWith("microModule") && content.endsWith("{")) {
                         include = true;
                         s = s + System.lineSeparator() + "    include ':" + myMicroModuleName.get() + "'";
                     }
@@ -98,7 +93,7 @@ public class NewMicroModuleModel extends WizardModel {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if(!include) {
+        if (!include) {
             result.append("\n");
             result.append("microModule {\n");
             result.append("\n");
@@ -110,10 +105,5 @@ public class NewMicroModuleModel extends WizardModel {
         Utils.write(buildFile, result.toString());
 
     }
-
-    private File getMicroModuleDir() {
-        return new File(module.getProject().getBasePath() + File.separator + module.getName(), myMicroModuleName.get());
-    }
-
 
 }

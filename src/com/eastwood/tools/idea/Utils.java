@@ -9,7 +9,7 @@ public class Utils {
             return;
         }
         String content = read(buildFile);
-        content = "apply plugin: 'micro-module'\n" + content;
+        content = "apply plugin: 'micro-module'\n// apply plugin: 'micro-module-check-code'\n" + content;
         write(buildFile, content);
     }
 
@@ -18,14 +18,23 @@ public class Utils {
         File sourceDir = new File(moduleDir, "src");
         copy(sourceDir, sourceDir.getAbsolutePath(), targetDir);
         delete(sourceDir);
+
+        File buildFile = new File(moduleDir, "main/build.gradle");
+        Utils.write(buildFile, "dependencies {\n//    implementation microModule(':you-created-micro-module-name')\n}");
     }
 
     public static void copy(File file, String prefix, File targetDir) {
         if (file.isDirectory()) {
+
+            String packageName = file.getAbsolutePath().replace(prefix, "");
+            File target = new File(targetDir, packageName);
+            if (!target.exists()) {
+                target.mkdir();
+            }
+
             for (File childFile : file.listFiles()) {
                 copy(childFile, prefix, targetDir);
             }
-            file.mkdirs();
         } else {
             String packageName = file.getParent().replace(prefix, "");
             File targetParent = new File(targetDir, packageName);
