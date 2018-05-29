@@ -5,13 +5,13 @@
   <vendor email="ycdyng@gmail.com" url="https://github.com/EastWoodYang">EastWood Yang</vendor>
 
   <description><![CDATA[
-      <h3>Provides an action which allow you quickly create MicroModule.</h3>
-      you will find "New Project with MicroModule..." and "New Module with MicroModule..." action in [File]->[New] group. <br>
+      Provides an action which allow you quickly create MicroModule.<br>
+      you will find "New Project/Module with MicroModule..." action in [File]->[New] group. <br>
       Right click on project or module dir, in [New] group, you will find "MicroModule" action.<br>
     ]]></description>
 
   <change-notes>
-    <!--<![CDATA[-->
+      <!--<![CDATA[-->
       <!--Add change notes here.<br>-->
       <!--<em>most HTML tags may be used</em>-->
     <!--]]>-->
