@@ -1,11 +1,7 @@
 # micro-module-idea-studio
 
-### How to build
-    1. Use IntelliJ IDEA open
-    2. Click Build-> Prepare Plugin Module ...
-    3. ***.jar will generated in project root directory.
-
-### How to install plugin
-    1. Open Android Studio
-    2. Click File -> Settings -> Plugins -> Install plugin for disk...
-    3. Select jar file which you build before
+### To set up a development environment
+    1. Open by IntelliJ IDEA (Community).
+    2. Open Module Settings.
+    3. New IntelliJ Platform Plugin SDK, select Android Studio install directory as its Home Directory.
+    4. Add Classpath 'android.jar' and 'adt-ui.jar', which under Android Studio 'plugins/android/lib'.
