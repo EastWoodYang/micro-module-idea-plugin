@@ -49,7 +49,7 @@ public class NewMicroModuleModel extends WizardModel {
         File microModuleDir = new File(moduleDir, myMicroModuleName.get());
         microModuleDir.mkdirs();
         File buildFile = new File(microModuleDir, "build.gradle");
-        Utils.write(buildFile, "dependencies {\n//    implementation microModule(':micro-module-name')\n}");
+        Utils.write(buildFile, "dependencies {\n//    implementation microModule(':you-created-micro-module-name')\n}");
 
         File srcDir = new File(microModuleDir, "src");
         srcDir.mkdirs();

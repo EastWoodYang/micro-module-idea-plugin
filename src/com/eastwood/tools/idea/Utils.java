@@ -9,7 +9,7 @@ public class Utils {
             return;
         }
         String content = read(buildFile);
-        content = "apply plugin: 'micro-module'\n// apply plugin: 'micro-module-check-code'\n" + content;
+        content = "apply plugin: 'micro-module'\n//apply plugin: 'micro-module-code-check'\n" + content;
         write(buildFile, content);
     }
 

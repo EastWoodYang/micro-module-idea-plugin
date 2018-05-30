@@ -65,7 +65,7 @@
             text="MicroModule"
             description="Create a new MicroModule"
             icon="/icons/micro_module.png">
-      <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewDir"/>
+      <add-to-group group-id="NewGroup" anchor="first" />
     </action>
 
   </actions>
