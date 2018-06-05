@@ -62,7 +62,7 @@ public class NewMicroModuleModel extends WizardModel {
         File resDir = new File(srcDir, "main/res");
         resDir.mkdir();
 
-        String[] resDirs = new String[]{"drawable", "layouts", "values"};
+        String[] resDirs = new String[]{"drawable", "drawable-hdpi", "drawable-xhdpi", "drawable-xxhdpi", "layout", "values"};
         for (String type : resDirs) {
             new File(resDir, type).mkdirs();
         }

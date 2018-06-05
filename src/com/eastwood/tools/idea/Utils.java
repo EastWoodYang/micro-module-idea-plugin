@@ -8,9 +8,23 @@ public class Utils {
         if (!buildFile.exists()) {
             return;
         }
-        String content = read(buildFile);
-        content = "apply plugin: 'micro-module'\n//apply plugin: 'micro-module-code-check'\n" + content;
-        write(buildFile, content);
+        boolean inserted = false;
+        StringBuilder result = new StringBuilder();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(buildFile));
+            String s = null;
+            while ((s = br.readLine()) != null) {
+                if (!inserted && (s.startsWith("apply plugin: 'com.android.application'") || s.startsWith("apply plugin: 'com.android.library'"))) {
+                    s = "apply plugin: 'micro-module'\n" + s + "\n//apply plugin: 'micro-module-code-check'";
+                    inserted = true;
+                }
+                result.append(s + System.lineSeparator());
+            }
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        write(buildFile, result.toString());
     }
 
     public static void moveSrcDir(File moduleDir) {
