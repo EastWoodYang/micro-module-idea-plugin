@@ -1,4 +1,4 @@
-# micro-module-idea-studio
+# micro-module-idea-plugin
 
 ### To set up a development environment
     1. Open by IntelliJ IDEA (Community).
