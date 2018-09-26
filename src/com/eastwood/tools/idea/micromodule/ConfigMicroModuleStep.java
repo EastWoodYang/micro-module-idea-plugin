@@ -28,7 +28,7 @@ public class ConfigMicroModuleStep extends SkippableWizardStep<NewMicroModuleMod
     private final ListenerManager myListeners;
 
     public ConfigMicroModuleStep(NewMicroModuleModel model, String title) {
-        super(model, title, null);
+        super(model, title);
 
         myValidatorPanel = new ValidatorPanel(this, myPanel);
 

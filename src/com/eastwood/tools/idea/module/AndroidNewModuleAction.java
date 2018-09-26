@@ -1,6 +1,5 @@
 package com.eastwood.tools.idea.module;
 
-import com.eastwood.tools.idea.Utils;
 import com.android.tools.idea.npw.module.ModuleDescriptionProvider;
 import com.android.tools.idea.npw.module.ModuleGalleryEntry;
 import com.android.tools.idea.projectsystem.ProjectSystemUtil;
@@ -8,6 +7,7 @@ import com.android.tools.idea.sdk.wizard.SdkQuickfixUtils;
 import com.android.tools.idea.ui.wizard.StudioWizardDialogBuilder;
 import com.android.tools.idea.wizard.model.ModelWizard;
 import com.android.tools.idea.wizard.model.ModelWizardStep;
+import com.eastwood.tools.idea.Utils;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.android.sdk.AndroidSdkUtils;
@@ -65,12 +65,11 @@ public class AndroidNewModuleAction extends com.android.tools.idea.actions.Andro
                 }
             });
 
-            (new StudioWizardDialogBuilder(wizard, AndroidBundle.message("android.wizard.module.new.module.title", new Object[0]))).setUseNewUx(true).build().show();
+            (new StudioWizardDialogBuilder(wizard, AndroidBundle.message("android.wizard.module.new.module.title", new Object[0]))).setUxStyle(StudioWizardDialogBuilder.UxStyle.INSTANT_APP).build().show();
         }
     }
 
     private void convertToMicroModule(File moduleDir) {
-        System.out.println(moduleDir.getAbsolutePath() + ": " + moduleDir.exists());
         if (!moduleDir.exists()) return;
 
         File buildFile = new File(moduleDir, "build.gradle");

@@ -27,7 +27,7 @@ public class AndroidNewMicroModuleAction extends AnAction {
         if (module != null && file != null && module.getName().equals(file.getName()) && !file.getName().equals(e.getProject().getName())) {
             e.getPresentation().setVisible(true);
             File buildFile = new File(file.getPath(), "build.gradle");
-            if(buildFile.exists()) {
+            if (buildFile.exists()) {
                 String content = Utils.read(buildFile);
                 if (content.contains("micro-module")) {
                     e.getPresentation().setEnabled(true);
@@ -60,7 +60,7 @@ public class AndroidNewMicroModuleAction extends AnAction {
             }
         });
 
-        (new StudioWizardDialogBuilder(wizard, AndroidBundle.message("android.wizard.module.new.module.title", new Object[0]))).setUseNewUx(true).build().show();
+        (new StudioWizardDialogBuilder(wizard, AndroidBundle.message("android.wizard.module.new.module.title", new Object[0]))).setUxStyle(StudioWizardDialogBuilder.UxStyle.ORIGINAL).build().show();
     }
 
 }

@@ -1,8 +1,13 @@
 package com.eastwood.tools.idea;
 
+import com.android.builder.model.AaptOptions.Namespacing;
+import com.android.ide.common.rendering.api.ResourceNamespace;
+import com.android.resources.ResourceType;
+import com.android.tools.idea.res.ResourceRepositoryManager;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.psi.xml.XmlElement;
@@ -51,13 +56,13 @@ public class AndroidGotoDeclarationHandler extends org.jetbrains.android.Android
                         if (info == null) {
                             PsiElement parent = refExp.getParent();
                             if (parent instanceof PsiReferenceExpression) {
-                                info = getReferredResourceOrManifestField(facet, (PsiReferenceExpression)parent, false);
+                                info = getReferredResourceOrManifestField(facet, (PsiReferenceExpression) parent, false);
                             }
 
                             if (info == null) {
                                 parent = parent.getParent();
                                 if (parent instanceof PsiReferenceExpression) {
-                                    info = getReferredResourceOrManifestField(facet, (PsiReferenceExpression)parent, false);
+                                    info = getReferredResourceOrManifestField(facet, (PsiReferenceExpression) parent, false);
                                 }
                             }
                         }
@@ -72,35 +77,35 @@ public class AndroidGotoDeclarationHandler extends org.jetbrains.android.Android
                                 collectManifestElements(nestedClassName, fieldName, facet, resourceList);
                             } else {
                                 ModuleResourceManagers resourceManagers = ModuleResourceManagers.getInstance(facet);
-                                ResourceManager manager = info.isSystem() ? resourceManagers.getSystemResourceManager(false) : resourceManagers.getLocalResourceManager();
+                                ResourceManager manager = info.getNamespace() == ResourceNamespace.ANDROID ? resourceManagers.getSystemResourceManager(false) : resourceManagers.getLocalResourceManager();
                                 if (manager == null) {
                                     return null;
                                 }
 
-                                ((ResourceManager)manager).collectLazyResourceElements(nestedClassName, fieldName, false, refExp, resourceList);
+                                ((ResourceManager) manager).collectLazyResourceElements(info.getNamespace(), nestedClassName, fieldName, false, refExp, resourceList);
                                 if (manager instanceof LocalResourceManager) {
-                                    LocalResourceManager lrm = (LocalResourceManager)manager;
+                                    LocalResourceManager lrm = (LocalResourceManager) manager;
                                     Iterator var14;
                                     Attr styleable;
-                                    if (nestedClassName.equals("attr")) {
+                                    if (nestedClassName.equals(ResourceType.ATTR.getName())) {
                                         var14 = lrm.findAttrs(fieldName).iterator();
 
-                                        while(var14.hasNext()) {
-                                            styleable = (Attr)var14.next();
+                                        while (var14.hasNext()) {
+                                            styleable = (Attr) var14.next();
                                             resourceList.add(styleable.getName().getXmlAttributeValue());
                                         }
-                                    } else if (nestedClassName.equals("styleable")) {
+                                    } else if (nestedClassName.equals(ResourceType.STYLEABLE.getName())) {
                                         var14 = lrm.findStyleables(fieldName).iterator();
 
-                                        while(var14.hasNext()) {
-                                            DeclareStyleable declareStyleable = (DeclareStyleable)var14.next();
+                                        while (var14.hasNext()) {
+                                            DeclareStyleable declareStyleable = (DeclareStyleable) var14.next();
                                             resourceList.add(declareStyleable.getName().getXmlAttributeValue());
                                         }
 
                                         var14 = lrm.findStyleableAttributesByFieldName(fieldName).iterator();
 
-                                        while(var14.hasNext()) {
-                                            styleable = (Attr)var14.next();
+                                        while (var14.hasNext()) {
+                                            styleable = (Attr) var14.next();
                                             resourceList.add(styleable.getName().getXmlAttributeValue());
                                         }
                                     }
@@ -111,7 +116,7 @@ public class AndroidGotoDeclarationHandler extends org.jetbrains.android.Android
                                 resourceList.sort(AndroidResourceUtil.RESOURCE_ELEMENT_COMPARATOR);
                             }
 
-                            return (PsiElement[])resourceList.toArray(new PsiElement[resourceList.size()]);
+                            return (PsiElement[]) resourceList.toArray(PsiElement.EMPTY_ARRAY);
                         }
                     }
                 }
@@ -120,6 +125,22 @@ public class AndroidGotoDeclarationHandler extends org.jetbrains.android.Android
     }
 
     private static void collectManifestElements(@NotNull String nestedClassName, @NotNull String fieldName, @NotNull AndroidFacet facet, @NotNull List<PsiElement> result) {
+        if (nestedClassName == null) {
+            return;
+        }
+
+        if (fieldName == null) {
+            return;
+        }
+
+        if (facet == null) {
+            return;
+        }
+
+        if (result == null) {
+            return;
+        }
+
         Manifest manifest = facet.getManifest();
         if (manifest != null) {
             List list;
@@ -135,10 +156,10 @@ public class AndroidGotoDeclarationHandler extends org.jetbrains.android.Android
 
             Iterator var6 = list.iterator();
 
-            while(var6.hasNext()) {
-                ManifestElementWithRequiredName domElement = (ManifestElementWithRequiredName)var6.next();
+            while (var6.hasNext()) {
+                ManifestElementWithRequiredName domElement = (ManifestElementWithRequiredName) var6.next();
                 AndroidAttributeValue<String> nameAttribute = domElement.getName();
-                String name = (String)nameAttribute.getValue();
+                String name = (String) nameAttribute.getValue();
                 if (AndroidUtils.equal(name, fieldName, false)) {
                     XmlElement psiElement = nameAttribute.getXmlAttributeValue();
                     if (psiElement != null) {
@@ -152,18 +173,26 @@ public class AndroidGotoDeclarationHandler extends org.jetbrains.android.Android
 
     @Nullable
     public static AndroidResourceUtil.MyReferredResourceFieldInfo getReferredResourceOrManifestField(@NotNull AndroidFacet facet, @NotNull PsiReferenceExpression exp, boolean localOnly) {
-        return getReferredResourceOrManifestField(facet, exp, (String)null, localOnly);
+        return getReferredResourceOrManifestField(facet, exp, (String) null, localOnly);
     }
 
     @Nullable
     public static AndroidResourceUtil.MyReferredResourceFieldInfo getReferredResourceOrManifestField(@NotNull AndroidFacet facet, @NotNull PsiReferenceExpression exp, @Nullable String className, boolean localOnly) {
+        if (facet == null) {
+            return null;
+        }
+
+        if (exp == null) {
+            return null;
+        }
+
         String resFieldName = exp.getReferenceName();
         if (resFieldName != null && !resFieldName.isEmpty()) {
             PsiExpression qExp = exp.getQualifierExpression();
             if (!(qExp instanceof PsiReferenceExpression)) {
                 return null;
             } else {
-                PsiReferenceExpression resClassReference = (PsiReferenceExpression)qExp;
+                PsiReferenceExpression resClassReference = (PsiReferenceExpression) qExp;
                 String resClassName = resClassReference.getReferenceName();
                 if (resClassName == null || resClassName.isEmpty() || className != null && !className.equals(resClassName)) {
                     return null;
@@ -172,39 +201,46 @@ public class AndroidGotoDeclarationHandler extends org.jetbrains.android.Android
                     if (!(qExp instanceof PsiReferenceExpression)) {
                         return null;
                     } else {
-                        PsiElement resolvedElement = ((PsiReferenceExpression)qExp).resolve();
+                        PsiElement resolvedElement = ((PsiReferenceExpression) qExp).resolve();
                         if (!(resolvedElement instanceof PsiClass)) {
                             return null;
                         } else {
                             Module resolvedModule = ModuleUtilCore.findModuleForPsiElement(resolvedElement);
-                            PsiClass aClass = (PsiClass)resolvedElement;
+                            PsiClass aClass = (PsiClass) resolvedElement;
                             String classShortName = aClass.getName();
                             boolean fromManifest = "Manifest".equals(classShortName);
                             if (!fromManifest && !"R".equals(classShortName)) {
                                 return null;
                             } else {
-                                if (!localOnly) {
-                                    String qName = aClass.getQualifiedName();
-                                    if ("android.R".equals(qName) || "com.android.internal.R".equals(qName)) {
-                                        return new AndroidResourceUtil.MyReferredResourceFieldInfo(resClassName, resFieldName, resolvedModule, true, false);
-                                    }
-                                }
-
-                                PsiFile containingFile = resolvedElement.getContainingFile();
-                                if (containingFile == null) {
+                                String qName = aClass.getQualifiedName();
+                                if (qName == null) {
                                     return null;
+                                } else if (!localOnly && ("android.R".equals(qName) || "com.android.internal.R".equals(qName))) {
+                                    return new AndroidResourceUtil.MyReferredResourceFieldInfo(resClassName, resFieldName, resolvedModule, ResourceNamespace.ANDROID, false);
                                 } else {
-                                    if (fromManifest) {
-                                        if (!isManifestJavaFile(facet, containingFile)) {
-                                            return null;
+                                    PsiFile containingFile = resolvedElement.getContainingFile();
+                                    if (containingFile == null) {
+                                        return null;
+                                    } else {
+                                        if (fromManifest) {
+                                            if (!isManifestJavaFile(facet, containingFile)) {
+                                                return null;
+                                            }
+                                        } else if (!isRJavaFile(facet, containingFile)) {
+                                            if (!containingFile.getContainingDirectory().toString().contains(File.separator + "build" + File.separator + "generated" + File.separator + "source" + File.separator)) {
+                                                return null;
+                                            }
                                         }
-                                    } else if (!isRJavaFile(facet, containingFile)) {
-                                        if(!containingFile.getContainingDirectory().toString().contains(File.separator+"build"+ File.separator+"generated"+ File.separator+"source"+ File.separator)) {
-                                            return null;
-                                        }
-                                    }
 
-                                    return new AndroidResourceUtil.MyReferredResourceFieldInfo(resClassName, resFieldName, resolvedModule, false, fromManifest);
+                                        ResourceNamespace resourceNamespace;
+                                        if (ResourceRepositoryManager.getOrCreateInstance(facet).getNamespacing() == Namespacing.DISABLED) {
+                                            resourceNamespace = ResourceNamespace.RES_AUTO;
+                                        } else {
+                                            resourceNamespace = ResourceNamespace.fromPackageName(StringUtil.getPackageName(qName));
+                                        }
+
+                                        return new AndroidResourceUtil.MyReferredResourceFieldInfo(resClassName, resFieldName, resolvedModule, resourceNamespace, fromManifest);
+                                    }
                                 }
                             }
                         }

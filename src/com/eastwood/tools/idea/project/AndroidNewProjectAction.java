@@ -1,13 +1,15 @@
 package com.eastwood.tools.idea.project;
 
-import com.eastwood.tools.idea.Utils;
-import com.android.tools.idea.npw.module.NewModuleModel;
-import com.android.tools.idea.npw.project.ConfigureAndroidProjectStep;
-import com.android.tools.idea.npw.project.NewProjectModel;
+import com.android.tools.idea.flags.StudioFlags;
+import com.android.tools.idea.npw.model.NewModuleModel;
+import com.android.tools.idea.npw.model.NewProjectModel;
+import com.android.tools.idea.npw.project.ChooseAndroidProjectStep;
 import com.android.tools.idea.sdk.wizard.SdkQuickfixUtils;
 import com.android.tools.idea.ui.wizard.StudioWizardDialogBuilder;
 import com.android.tools.idea.wizard.model.ModelWizard;
 import com.android.tools.idea.wizard.model.ModelWizardStep;
+import com.eastwood.tools.idea.Utils;
+import com.intellij.idea.ActionsBundle;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.android.sdk.AndroidSdkUtils;
 import org.jetbrains.annotations.NotNull;
@@ -31,22 +33,30 @@ public class AndroidNewProjectAction extends com.android.tools.idea.actions.Andr
         if (!AndroidSdkUtils.isAndroidSdkAvailable()) {
             SdkQuickfixUtils.showSdkMissingDialog();
         } else {
-            NewProjectModel projectModel = new NewProjectModel();
-            ConfigureAndroidProjectStep configureAndroidProjectStep = new ConfigureAndroidProjectStep(projectModel);
-            ModelWizard wizard = (new ModelWizard.Builder(new ModelWizardStep[0])).addStep(configureAndroidProjectStep).build();
+            final NewProjectModel projectModel = new NewProjectModel();
+            ModelWizard wizard = null;
+            StudioWizardDialogBuilder.UxStyle style;
+            if ((Boolean) StudioFlags.NPW_DYNAMIC_APPS.get()) {
+                wizard = (new ModelWizard.Builder(new ModelWizardStep[0])).addStep(new ChooseAndroidProjectStep(projectModel)).build();
+                style = StudioWizardDialogBuilder.UxStyle.DYNAMIC_APP;
+            } else {
+                wizard = (new ModelWizard.Builder(new ModelWizardStep[0])).addStep(new com.android.tools.idea.npw.project.deprecated.ConfigureAndroidProjectStep(projectModel)).build();
+                style = StudioWizardDialogBuilder.UxStyle.INSTANT_APP;
+            }
+
             wizard.addResultListener(new ModelWizard.WizardListener() {
-                @Override
                 public void onWizardFinished(@NotNull ModelWizard.WizardResult result) {
-                    if (!result.isFinished()) {
+                    if (result == null) {
                         return;
                     }
+
                     convertToMicroModule(projectModel);
+                    projectModel.onWizardFinished(result);
                 }
             });
-            (new StudioWizardDialogBuilder(wizard, "Create New Project With MicroModule")).setUseNewUx(true).build().show();
+            (new StudioWizardDialogBuilder(wizard, ActionsBundle.actionText("WelcomeScreen.CreateNewProject"))).setUxStyle(style).build().show();
         }
     }
-
 
     private void convertToMicroModule(NewProjectModel projectModel) {
         File projectDir = new File(projectModel.projectLocation().get());
