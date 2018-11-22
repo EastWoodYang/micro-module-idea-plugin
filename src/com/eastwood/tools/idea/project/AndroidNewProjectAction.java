@@ -45,7 +45,6 @@ public class AndroidNewProjectAction extends com.android.tools.idea.actions.Andr
         }
     }
 
-
     private void convertToMicroModule(NewProjectModel projectModel) {
         File projectDir = new File(projectModel.projectLocation().get());
         File projectBuild = new File(projectDir, "build.gradle");
