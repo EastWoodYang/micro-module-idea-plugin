@@ -24,7 +24,6 @@ public class ConfigMicroModuleStep extends SkippableWizardStep<NewMicroModuleMod
     private JTextField myMicroModuleName;
     private JTextField myPackageName;
 
-
     private final ListenerManager myListeners;
 
     public ConfigMicroModuleStep(NewMicroModuleModel model, String title) {

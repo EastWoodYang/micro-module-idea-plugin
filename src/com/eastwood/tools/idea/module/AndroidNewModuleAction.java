@@ -80,5 +80,4 @@ public class AndroidNewModuleAction extends com.android.tools.idea.actions.Andro
         Utils.moveSrcDir(moduleDir);
     }
 
-
 }
