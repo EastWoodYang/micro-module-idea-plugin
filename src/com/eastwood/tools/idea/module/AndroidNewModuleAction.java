@@ -70,11 +70,13 @@ public class AndroidNewModuleAction extends com.android.tools.idea.actions.Andro
     }
 
     private void convertToMicroModule(File moduleDir) {
-        System.out.println(moduleDir.getAbsolutePath() + ": " + moduleDir.exists());
         if (!moduleDir.exists()) return;
 
         File buildFile = new File(moduleDir, "build.gradle");
+        if (!Utils.isAndroidModule(buildFile)) return;
+
         Utils.applyMicroModulePlugin(buildFile);
+        Utils.addMicroModuleExtension(buildFile);
         Utils.moveSrcDir(moduleDir);
     }
 

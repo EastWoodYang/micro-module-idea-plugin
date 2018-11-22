@@ -1,74 +1,76 @@
 <idea-plugin>
-  <id>com.eastwood.tools.idea.micromodule</id>
-  <name>MicroModule</name>
-  <version>1.1.1</version>
-  <vendor email="ycdyng@gmail.com" url="https://github.com/EastWoodYang">EastWood Yang</vendor>
+    <id>com.eastwood.tools.idea.micromodule</id>
+    <name>MicroModule</name>
+    <version>1.1.1</version>
+    <vendor email="ycdyng@gmail.com" url="https://github.com/EastWoodYang">EastWood Yang</vendor>
 
-  <description><![CDATA[
+    <description><![CDATA[
       Provides an action which allow you quickly create MicroModule.<br>
       You will find "New Project/Module with MicroModule..." action in [File]->[New] group. <br>
       Right click at project or module dir, in [New] group, you will find "MicroModule" action.<br>
     ]]></description>
 
-  <change-notes>
-      <!--<![CDATA[-->
-      <!--Add change notes here.<br>-->
-      <!--<em>most HTML tags may be used</em>-->
-    <!--]]>-->
-  </change-notes>
+    <change-notes>
+        <!--<![CDATA[-->
+        <!--Add change notes here.<br>-->
+        <!--<em>most HTML tags may be used</em>-->
+        <!--]]>-->
+    </change-notes>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="173.0"/>
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+    <idea-version since-build="173.0"/>
 
-  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
-       on how to target different products -->
-  <depends>com.intellij.modules.lang</depends>
-  <depends>org.jetbrains.android</depends>
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.lang</depends>
+    <depends>org.jetbrains.android</depends>
 
-  <extensions defaultExtensionNs="com.intellij">
-    <gotoDeclarationHandler implementation="com.eastwood.tools.idea.AndroidGotoDeclarationHandler"/>
-    <editorNotificationProvider implementation="com.eastwood.tools.idea.MicroModuleNotificationProvider"/>
+    <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceInterface="com.eastwood.tools.idea.MicroModuleService"
+                        serviceImplementation="com.eastwood.tools.idea.MicroModuleService"/>
+        <gotoDeclarationHandler implementation="com.eastwood.tools.idea.AndroidGotoDeclarationHandler"/>
+        <editorNotificationProvider implementation="com.eastwood.tools.idea.MicroModuleNotificationProvider"/>
+    </extensions>
 
-  </extensions>
+    <extensions defaultExtensionNs="com.android">
 
-  <extensions defaultExtensionNs="com.android">
+    </extensions>
 
-  </extensions>
+    <actions>
 
-  <actions>
+        <action id="microModule.NewProject.welcome" class="com.eastwood.tools.idea.project.AndroidNewProjectAction"
+                text="Start a new Android Studio project with MicroModule"
+                description="Create a new android studio project with microModule">
+            <add-to-group group-id="WelcomeScreen.QuickStart.IDEA" anchor="after"
+                          relative-to-action="WelcomeScreen.CreateNewProject"/>
+        </action>
 
-    <action id="microModule.NewProject.welcome" class="com.eastwood.tools.idea.project.AndroidNewProjectAction"
-            text="Start a new Android Studio project with MicroModule"
-            description="Create a new android studio project with microModule">
-      <add-to-group group-id="WelcomeScreen.QuickStart.IDEA" anchor="after" relative-to-action="WelcomeScreen.CreateNewProject"/>
-    </action>
+        <action id="microModule.NewProject" class="com.eastwood.tools.idea.project.AndroidNewProjectAction"
+                text="New Project With MicroModule..."
+                description="Create a new project with microModule">
+            <add-to-group group-id="NewProjectOrModuleGroup" anchor="after" relative-to-action="NewProject"/>
+        </action>
 
-    <action id="microModule.NewProject" class="com.eastwood.tools.idea.project.AndroidNewProjectAction"
-            text="New Project With MicroModule..."
-            description="Create a new project with microModule">
-      <add-to-group group-id="NewProjectOrModuleGroup" anchor="after" relative-to-action="NewProject"/>
-    </action>
+        <action id="microModule.NewModule" class="com.eastwood.tools.idea.module.AndroidNewModuleAction"
+                text="New Module With MicroModule..."
+                description="Create a new module with microModule">
+            <add-to-group group-id="NewProjectOrModuleGroup" anchor="after" relative-to-action="NewModule"/>
+        </action>
 
-    <action id="microModule.NewModule" class="com.eastwood.tools.idea.module.AndroidNewModuleAction"
-            text="New Module With MicroModule..."
-            description="Create a new module with microModule">
-      <add-to-group group-id="NewProjectOrModuleGroup" anchor="after" relative-to-action="NewModule"/>
-    </action>
+        <action id="microModule.NewModuleInGroup" class="com.eastwood.tools.idea.module.AndroidNewModuleInGroupAction"
+                text="Module With MicroModule..."
+                description="Create a new module with microModule"
+                icon="/icons/module_with_micro_module.png">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+        </action>
 
-    <action id="microModule.NewModuleInGroup" class="com.eastwood.tools.idea.module.AndroidNewModuleInGroupAction"
-            text="Module With MicroModule..."
-            description="Create a new module with microModule"
-            icon="/icons/module_with_micro_module.png">
-      <add-to-group group-id="NewGroup" anchor="first"/>
-    </action>
+        <action id="microModule.NewMicroModule" class="com.eastwood.tools.idea.micromodule.AndroidNewMicroModuleAction"
+                text="MicroModule"
+                description="Create a new MicroModule"
+                icon="/icons/micro_module.png">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+        </action>
 
-    <action id="microModule.NewMicroModule" class="com.eastwood.tools.idea.micromodule.AndroidNewMicroModuleAction"
-            text="MicroModule"
-            description="Create a new MicroModule"
-            icon="/icons/micro_module.png">
-      <add-to-group group-id="NewGroup" anchor="first" />
-    </action>
-
-  </actions>
+    </actions>
 
 </idea-plugin>

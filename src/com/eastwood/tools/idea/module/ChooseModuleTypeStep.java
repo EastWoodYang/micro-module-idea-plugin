@@ -35,7 +35,6 @@ public class ChooseModuleTypeStep extends com.android.tools.idea.npw.module.Choo
         for (ModelWizardStep step : allSteps) {
             if (step instanceof ConfigureAndroidModuleStep) {
                 ConfigureAndroidModuleStep androidModuleStep = (ConfigureAndroidModuleStep) step;
-                System.out.println(androidModuleStep.getTitle());
                 Field field = getDeclaredField(androidModuleStep, "myModuleName");
                 field.setAccessible(true);
                 try {
