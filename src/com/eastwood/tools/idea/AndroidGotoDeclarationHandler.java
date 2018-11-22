@@ -199,7 +199,7 @@ public class AndroidGotoDeclarationHandler extends org.jetbrains.android.Android
                                             return null;
                                         }
                                     } else if (!isRJavaFile(facet, containingFile)) {
-                                        if(!containingFile.getContainingDirectory().toString().contains(File.separator+"build"+ File.separator+"generated"+ File.separator+"source"+ File.separator)) {
+                                        if(!isMicroModuleRJavaFile(containingFile)) {
                                             return null;
                                         }
                                     }
@@ -215,4 +215,14 @@ public class AndroidGotoDeclarationHandler extends org.jetbrains.android.Android
             return null;
         }
     }
+
+    private static boolean isMicroModuleRJavaFile(@NotNull PsiFile file) {
+        if (file.getName().equals("R.java") && file instanceof PsiJavaFile) {
+            if(file.getVirtualFile().getPath().contains("build")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

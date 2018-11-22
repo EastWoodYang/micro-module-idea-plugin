@@ -15,7 +15,7 @@ public class Utils {
             String s = null;
             while ((s = br.readLine()) != null) {
                 if (!inserted && (s.startsWith("apply plugin: 'com.android.application'") || s.startsWith("apply plugin: 'com.android.library'"))) {
-                    s = "apply plugin: 'micro-module'\n" + s + "\n//apply plugin: 'micro-module-code-check'";
+                    s = "apply plugin: 'micro-module'\n" + s;
                     inserted = true;
                 }
                 result.append(s + System.lineSeparator());
