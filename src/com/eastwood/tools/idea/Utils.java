@@ -4,19 +4,62 @@ import java.io.*;
 
 public class Utils {
 
-    public static void applyMicroModulePlugin(File buildFile) {
+    public static boolean isAndroidModule(File buildFile) {
         if (!buildFile.exists()) {
-            return;
+            return false;
         }
-        boolean inserted = false;
+        String buildContent = read(buildFile);
+        if (buildContent.contains("'com.android.application'") || buildContent.contains("'com.android.library'")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static void createMicroModule(File moduleDir, String microModuleName, String packageName) {
+        File microModuleDir = new File(moduleDir, microModuleName);
+        microModuleDir.mkdirs();
+
+        File buildFile = new File(microModuleDir, "build.gradle");
+        Utils.addMicroModuleBuildScript(buildFile);
+
+        File libs = new File(microModuleDir, "libs");
+        libs.mkdirs();
+
+        File srcDir = new File(microModuleDir, "src");
+        srcDir.mkdirs();
+        String packagePath = packageName.replace(".", "/");
+        String[] types = new String[]{"androidTest", "main", "test"};
+        for (String type : types) {
+            new File(srcDir, type + File.separator + "java" + File.separator + packagePath).mkdirs();
+        }
+
+        File resDir = new File(srcDir, "main/res");
+        resDir.mkdir();
+
+        String[] resDirs = new String[]{"drawable", "drawable-hdpi", "drawable-xhdpi", "drawable-xxhdpi", "layout", "values"};
+        for (String type : resDirs) {
+            new File(resDir, type).mkdirs();
+        }
+
+        File manifestFile = new File(srcDir, "main/AndroidManifest.xml");
+        String content = "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    package=\"" + packageName + "\">\n        <application></application>\n</manifest>";
+        Utils.write(manifestFile, content);
+    }
+
+    public static void includeMicroModule(File buildFile, String microModuleName) {
         StringBuilder result = new StringBuilder();
+        boolean include = false;
         try {
             BufferedReader br = new BufferedReader(new FileReader(buildFile));
             String s = null;
             while ((s = br.readLine()) != null) {
-                if (!inserted && (s.startsWith("apply plugin: 'com.android.application'") || s.startsWith("apply plugin: 'com.android.library'"))) {
-                    s = "apply plugin: 'micro-module'\n" + s;
-                    inserted = true;
+                if (s.contains("microModule")) {
+                    String content = s.trim();
+                    if (content.startsWith("microModule") && content.endsWith("{") && !content.startsWith("//")) {
+                        include = true;
+                        s = s + System.lineSeparator() + "    include ':" + microModuleName + "'";
+                    }
                 }
                 result.append(s + System.lineSeparator());
             }
@@ -24,7 +67,37 @@ public class Utils {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        write(buildFile, result.toString());
+
+        if (include) {
+            Utils.write(buildFile, result.toString());
+        } else {
+            addMicroModuleExtension(buildFile, microModuleName);
+        }
+    }
+
+    public static void addMicroModuleClasspath(File buildFile) {
+        StringBuilder result = new StringBuilder();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(buildFile));
+            String s = null;
+            while ((s = br.readLine()) != null) {
+                if (s.contains("classpath 'com.android.tools.build")) {
+                    s = s + System.lineSeparator() + "        classpath 'com.eastwood.tools.plugins:micro-module:1.2.0'";
+                }
+                result.append(s + System.lineSeparator());
+            }
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Utils.write(buildFile, result.toString());
+    }
+
+    public static void applyMicroModulePlugin(File buildFile) {
+        if (!buildFile.exists()) {
+            return;
+        }
+        add(buildFile, "apply plugin: 'micro-module'", true);
     }
 
     public static void moveSrcDir(File moduleDir) {
@@ -34,7 +107,66 @@ public class Utils {
         delete(sourceDir);
 
         File buildFile = new File(moduleDir, "main/build.gradle");
-        Utils.write(buildFile, "dependencies {\n//    implementation microModule(':you-created-micro-module-name')\n}");
+        addMicroModuleBuildScript(buildFile);
+    }
+
+    public static void addMicroModuleBuildScript(File buildFile) {
+        Utils.write(buildFile, "// MicroModule build file where you can add configuration options to\n" +
+                "// publish MicroModule(aar) to Maven and declare MicroModule dependencies.\n" +
+                "//\n" +
+                "// e.g.\n" +
+                "//\n" +
+                "//    microModule {\n" +
+                "//\n" +
+                "//        useMavenArtifact false\n" +
+                "//\n" +
+                "//        mavenArtifact {\n" +
+                "//            groupId '***'\n" +
+                "//            artifactId '***'\n" +
+                "//            // version '***' // set the version before it be published.\n" +
+                "//\n" +
+                "//            repository {\n" +
+                "//                url \"http://***\"\n" +
+                "//                authentication(userName: '***', password: '***')\n" +
+                "//            }\n" +
+                "//        }\n" +
+                "//\n" +
+                "//    }\n" +
+                "//\n" +
+                "//    dependencies {\n" +
+                "//          implementation fileTree(dir: '" + buildFile.getParentFile().getName() + "/libs', include: ['*.jar'])\n" +
+                "//          // implementation microModule(':other-micro-module-name-in-this-module')\n" +
+                "//    }");
+    }
+
+    public static void addMicroModuleExtension(File buildFile) {
+        addMicroModuleExtension(buildFile, null);
+    }
+
+    public static void addMicroModuleExtension(File buildFile, String microModuleName) {
+        String extension = "\nmicroModule {\n" +
+                "\n" + (microModuleName != null ? ("      include ':" + microModuleName + "'\n") : "") +
+                "    // use 'codeCheckEnabled' to declared code check enable state, 'true' as default.\n" +
+                "\n" +
+                "    // use 'includeMain' to declare main MicroModule.\n" +
+                "    // e.g.\n" +
+                "    //      includeMain ':main'\n" +
+                "    //\n" +
+                "    // if not declared, will be declared as default if file with name 'main' exist.\n" +
+                "\n" +
+                "    // use 'export' to declare export one or more MicroModule.\n" +
+                "    // e.g.\n" +
+                "    //      export ':main', ...\n" +
+                "    //\n" +
+                "    // if not declared, will export all include MicroModule.\n" +
+                "\n" +
+                "    // use 'include' to declare other MicroModules.\n" +
+                "    // e.g.\n" +
+                "    //      include ':base'\n" +
+                "    //      include ':common'\n" +
+                "\n" +
+                "}";
+        add(buildFile, extension, false);
     }
 
     public static void copy(File file, String prefix, File targetDir) {
@@ -109,6 +241,11 @@ public class Utils {
             e.printStackTrace();
         }
         return result.toString();
+    }
+
+    public static void add(File target, String content, boolean before) {
+        String targetContent = read(target);
+        write(target, before ? (content + "\n" + targetContent) : (targetContent + "\n" + content));
     }
 
 }

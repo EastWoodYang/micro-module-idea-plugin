@@ -14,9 +14,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.android.sdk.AndroidSdkUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.util.Iterator;
 
 public class AndroidNewProjectAction extends com.android.tools.idea.actions.AndroidNewProjectAction {
@@ -61,21 +59,7 @@ public class AndroidNewProjectAction extends com.android.tools.idea.actions.Andr
     private void convertToMicroModule(NewProjectModel projectModel) {
         File projectDir = new File(projectModel.projectLocation().get());
         File projectBuild = new File(projectDir, "build.gradle");
-        StringBuilder result = new StringBuilder();
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(projectBuild));
-            String s = null;
-            while ((s = br.readLine()) != null) {
-                if (s.contains("classpath 'com.android.tools.build")) {
-                    s = s + System.lineSeparator() + "        classpath 'com.eastwood.tools.plugins:micro-module:1.0.0'";
-                }
-                result.append(s + System.lineSeparator());
-            }
-            br.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Utils.write(projectBuild, result.toString());
+        Utils.addMicroModuleClasspath(projectBuild);
 
         Iterator iterator = projectModel.getNewModuleModels().iterator();
         while (iterator.hasNext()) {
@@ -86,11 +70,13 @@ public class AndroidNewProjectAction extends com.android.tools.idea.actions.Andr
                 continue;
             }
 
-            File moduleBuild = new File(moduleDir, "build.gradle");
-            if (!moduleBuild.exists()) {
+            File buildFile = new File(moduleDir, "build.gradle");
+            if (!Utils.isAndroidModule(buildFile)) {
                 continue;
             }
-            Utils.applyMicroModulePlugin(moduleBuild);
+
+            Utils.applyMicroModulePlugin(buildFile);
+            Utils.addMicroModuleExtension(buildFile);
             Utils.moveSrcDir(moduleDir);
         }
     }

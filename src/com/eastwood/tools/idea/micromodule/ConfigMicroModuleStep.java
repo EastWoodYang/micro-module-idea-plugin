@@ -32,7 +32,6 @@ public class ConfigMicroModuleStep extends SkippableWizardStep<NewMicroModuleMod
 
         myValidatorPanel = new ValidatorPanel(this, myPanel);
 
-
         this.myListeners = new ListenerManager();
 
         TextProperty moduleNameText = new TextProperty(this.myMicroModuleName);
@@ -49,7 +48,11 @@ public class ConfigMicroModuleStep extends SkippableWizardStep<NewMicroModuleMod
 
         TextProperty packageNameText = new TextProperty(this.myPackageName);
         this.myValidatorPanel.registerValidator(packageNameText, (value) -> {
-            return Validator.Result.fromNullableMessage(WizardUtils.validatePackageName(value));
+            if (model.validatePackageName(value)) {
+                return new Validator.Result(Validator.Severity.ERROR, "Package name \"" + value + "\" already exists.");
+            } else {
+                return Validator.Result.fromNullableMessage(WizardUtils.validatePackageName(value));
+            }
         });
 
         myRootPanel = new StudioWizardStepPanel(myValidatorPanel);

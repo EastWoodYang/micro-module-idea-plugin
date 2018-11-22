@@ -24,6 +24,8 @@
   <depends>org.jetbrains.android</depends>
 
   <extensions defaultExtensionNs="com.intellij">
+    <projectService serviceInterface="com.eastwood.tools.idea.MicroModuleService"
+                    serviceImplementation="com.eastwood.tools.idea.MicroModuleService"/>
     <gotoDeclarationHandler implementation="com.eastwood.tools.idea.AndroidGotoDeclarationHandler"/>
     <editorNotificationProvider implementation="com.eastwood.tools.idea.MicroModuleNotificationProvider"/>
   </extensions>
