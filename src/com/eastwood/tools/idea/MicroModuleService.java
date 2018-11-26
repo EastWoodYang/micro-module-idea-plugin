@@ -34,7 +34,6 @@ public class MicroModuleService {
         VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
             @Override
             public void contentsChanged(@NotNull VirtualFileEvent event) {
-                System.out.println(event.getFile().getPath());
                 if (MICRO_MODULES.equals(event.getFile().getName())) {
                     if (event.getParent() != null) {
                         if (IDEA.equals(event.getParent().getName())) {
@@ -47,6 +46,9 @@ public class MicroModuleService {
     }
 
     public List<MicroModuleInfo> getMicroModules(Module module) {
+        if (module.getModuleFile() == null) {
+            LocalFileSystem.getInstance().refresh(false);
+        }
         String modulePath = module.getModuleFile().getParent().getPath();
         return microModules.get(modulePath);
     }
