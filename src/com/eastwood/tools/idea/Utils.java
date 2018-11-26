@@ -43,7 +43,7 @@ public class Utils {
         }
 
         File manifestFile = new File(srcDir, "main/AndroidManifest.xml");
-        String content = "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    package=\"" + packageName + "\">\n        <application></application>\n</manifest>";
+        String content = "<manifest xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    package=\"" + packageName + "\">\n        <application>\n            \n        </application>\n</manifest>";
         Utils.write(manifestFile, content);
     }
 
@@ -111,32 +111,16 @@ public class Utils {
     }
 
     public static void addMicroModuleBuildScript(File buildFile) {
-        Utils.write(buildFile, "// MicroModule build file where you can add configuration options to\n" +
-                "// publish MicroModule(aar) to Maven and declare MicroModule dependencies.\n" +
-                "//\n" +
-                "// e.g.\n" +
-                "//\n" +
-                "//    microModule {\n" +
-                "//\n" +
-                "//        useMavenArtifact false\n" +
-                "//\n" +
-                "//        mavenArtifact {\n" +
-                "//            groupId '***'\n" +
-                "//            artifactId '***'\n" +
-                "//            // version '***' // set the version before it be published.\n" +
-                "//\n" +
-                "//            repository {\n" +
-                "//                url \"http://***\"\n" +
-                "//                authentication(userName: '***', password: '***')\n" +
-                "//            }\n" +
-                "//        }\n" +
-                "//\n" +
-                "//    }\n" +
-                "//\n" +
-                "//    dependencies {\n" +
-                "//          implementation fileTree(dir: '" + buildFile.getParentFile().getName() + "/libs', include: ['*.jar'])\n" +
-                "//          // implementation microModule(':other-micro-module-name-in-this-module')\n" +
-                "//    }");
+        Utils.write(buildFile, "// MicroModule build file where you can add configuration options to publish MicroModule(aar) to Maven \n" +
+                "// and declare MicroModule dependencies.\n" +
+                "\n" +
+                "microModule {\n" +
+                "\n" +
+                "}\n" +
+                "\n" +
+                "dependencies {\n" +
+                "    implementation fileTree(dir: '" + buildFile.getParentFile().getName() + "/libs', include: ['*.jar'])\n" +
+                "}\n");
     }
 
     public static void addMicroModuleExtension(File buildFile) {
@@ -145,27 +129,8 @@ public class Utils {
 
     public static void addMicroModuleExtension(File buildFile, String microModuleName) {
         String extension = "\nmicroModule {\n" +
-                "\n" + (microModuleName != null ? ("      include ':" + microModuleName + "'\n") : "") +
-                "    // use 'codeCheckEnabled' to declared code check enable state, 'true' as default.\n" +
-                "\n" +
-                "    // use 'includeMain' to declare main MicroModule.\n" +
-                "    // e.g.\n" +
-                "    //      includeMain ':main'\n" +
-                "    //\n" +
-                "    // if not declared, will be declared as default if file with name 'main' exist.\n" +
-                "\n" +
-                "    // use 'export' to declare export one or more MicroModule.\n" +
-                "    // e.g.\n" +
-                "    //      export ':main', ...\n" +
-                "    //\n" +
-                "    // if not declared, will export all include MicroModule.\n" +
-                "\n" +
-                "    // use 'include' to declare other MicroModules.\n" +
-                "    // e.g.\n" +
-                "    //      include ':base'\n" +
-                "    //      include ':common'\n" +
-                "\n" +
-                "}";
+                (microModuleName == null ? "\n" : "    include ':" + microModuleName + "'\n") +
+                "}\n";
         add(buildFile, extension, false);
     }
 
