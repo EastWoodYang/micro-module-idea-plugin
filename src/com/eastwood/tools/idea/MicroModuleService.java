@@ -46,16 +46,21 @@ public class MicroModuleService {
     }
 
     public List<MicroModuleInfo> getMicroModules(Module module) {
-        if (module.getModuleFile() == null) {
-            LocalFileSystem.getInstance().refresh(false);
+        File moduleFile = new File(module.getModuleFilePath());
+        String modulePath = moduleFile.getParent().replace('\\', '/');
+        if (microModules.isEmpty()) {
+            microModules = loadMicroModules();
         }
-        String modulePath = module.getModuleFile().getParent().getPath();
         return microModules.get(modulePath);
     }
 
     public List<String> getMicroModulePackageNames(Module module) {
         List<String> packageNames = new ArrayList<>();
         List<MicroModuleInfo> microModuleInfoList = getMicroModules(module);
+        if (microModuleInfoList == null) {
+            return packageNames;
+        }
+
         LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
         for (MicroModuleInfo microModuleInfo : microModuleInfoList) {
             VirtualFile microModuleSrcDir = localFileSystem.findFileByIoFile(new File(microModuleInfo.path, "src"));
