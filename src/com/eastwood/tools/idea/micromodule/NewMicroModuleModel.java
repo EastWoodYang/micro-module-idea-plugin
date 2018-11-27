@@ -8,7 +8,6 @@ import com.eastwood.tools.idea.MicroModuleService;
 import com.eastwood.tools.idea.Utils;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.vfs.LocalFileSystem;
 
 import java.io.File;
 import java.util.List;
@@ -25,10 +24,8 @@ public class NewMicroModuleModel extends WizardModel {
 
     public NewMicroModuleModel(Module module) {
         this.module = module;
-        if (module.getModuleFile() == null) {
-            LocalFileSystem.getInstance().refresh(false);
-        }
-        moduleDir = new File(module.getModuleFile().getParent().getPath());
+        File moduleFile = new File(module.getModuleFilePath());
+        moduleDir = moduleFile.getParentFile();
 
         MicroModuleService microModuleService = ServiceManager.getService(module.getProject(), MicroModuleService.class);
         microModulePackageNames = microModuleService.getMicroModulePackageNames(module);

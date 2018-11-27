@@ -8,6 +8,7 @@ public class Utils {
         if (!buildFile.exists()) {
             return false;
         }
+
         String buildContent = read(buildFile);
         if (buildContent.contains("'com.android.application'") || buildContent.contains("'com.android.library'")) {
             return true;
@@ -48,18 +49,19 @@ public class Utils {
     }
 
     public static void includeMicroModule(File buildFile, String microModuleName) {
+        if (!buildFile.exists()) {
+            return;
+        }
+
         StringBuilder result = new StringBuilder();
         boolean include = false;
         try {
             BufferedReader br = new BufferedReader(new FileReader(buildFile));
             String s = null;
             while ((s = br.readLine()) != null) {
-                if (s.contains("microModule")) {
-                    String content = s.trim();
-                    if (content.startsWith("microModule") && content.endsWith("{") && !content.startsWith("//")) {
-                        include = true;
-                        s = s + System.lineSeparator() + "    include ':" + microModuleName + "'";
-                    }
+                if (s.trim().equals("microModule {")) {
+                    include = true;
+                    s = s + System.lineSeparator() + "    include ':" + microModuleName + "'";
                 }
                 result.append(s + System.lineSeparator());
             }
@@ -76,6 +78,10 @@ public class Utils {
     }
 
     public static void addMicroModuleClasspath(File buildFile) {
+        if (!buildFile.exists()) {
+            return;
+        }
+
         StringBuilder result = new StringBuilder();
         try {
             BufferedReader br = new BufferedReader(new FileReader(buildFile));
@@ -97,7 +103,9 @@ public class Utils {
         if (!buildFile.exists()) {
             return;
         }
-        add(buildFile, "apply plugin: 'micro-module'", true);
+        String buildScript = Utils.read(buildFile);
+        buildScript = "apply plugin: 'micro-module'\n" + buildScript;
+        write(buildFile, buildScript);
     }
 
     public static void moveSrcDir(File moduleDir) {
@@ -106,12 +114,15 @@ public class Utils {
         copy(sourceDir, sourceDir.getAbsolutePath(), targetDir);
         delete(sourceDir);
 
+        File libs = new File(moduleDir, "main/libs");
+        libs.mkdirs();
+
         File buildFile = new File(moduleDir, "main/build.gradle");
         addMicroModuleBuildScript(buildFile);
     }
 
     public static void addMicroModuleBuildScript(File buildFile) {
-        Utils.write(buildFile, "// MicroModule build file where you can add configuration options to publish MicroModule(aar) to Maven \n" +
+        String buildScript = "// MicroModule build file where you can add configuration options to publish MicroModule(aar) to Maven \n" +
                 "// and declare MicroModule dependencies.\n" +
                 "\n" +
                 "microModule {\n" +
@@ -120,7 +131,8 @@ public class Utils {
                 "\n" +
                 "dependencies {\n" +
                 "    implementation fileTree(dir: '" + buildFile.getParentFile().getName() + "/libs', include: ['*.jar'])\n" +
-                "}\n");
+                "}\n";
+        Utils.write(buildFile, buildScript);
     }
 
     public static void addMicroModuleExtension(File buildFile) {
@@ -128,10 +140,28 @@ public class Utils {
     }
 
     public static void addMicroModuleExtension(File buildFile, String microModuleName) {
-        String extension = "\nmicroModule {\n" +
+        if (!buildFile.exists()) {
+            return;
+        }
+        String extension = "microModule {\n" +
                 (microModuleName == null ? "\n" : "    include ':" + microModuleName + "'\n") +
                 "}\n";
-        add(buildFile, extension, false);
+
+        StringBuilder result = new StringBuilder();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(buildFile));
+            String s = null;
+            while ((s = br.readLine()) != null) {
+                if ("dependencies {".equals(s)) {
+                    s = extension + System.lineSeparator() + s;
+                }
+                result.append(s + System.lineSeparator());
+            }
+            br.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Utils.write(buildFile, result.toString());
     }
 
     public static void copy(File file, String prefix, File targetDir) {
@@ -194,6 +224,10 @@ public class Utils {
     }
 
     public static String read(File target) {
+        if (!target.exists()) {
+            return null;
+        }
+
         StringBuilder result = new StringBuilder();
         try {
             BufferedReader br = new BufferedReader(new FileReader(target));
@@ -206,11 +240,6 @@ public class Utils {
             e.printStackTrace();
         }
         return result.toString();
-    }
-
-    public static void add(File target, String content, boolean before) {
-        String targetContent = read(target);
-        write(target, before ? (content + "\n" + targetContent) : (targetContent + "\n" + content));
     }
 
 }
