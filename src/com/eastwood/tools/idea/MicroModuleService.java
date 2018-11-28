@@ -27,22 +27,29 @@ public class MicroModuleService {
 
     private Project project;
     private Map<String, List<MicroModuleInfo>> microModules;
+    VirtualFileListener virtualFileListener = new VirtualFileListener() {
+        @Override
+        public void contentsChanged(@NotNull VirtualFileEvent event) {
+            if (project.isDisposed()) {
+                VirtualFileManager.getInstance().removeVirtualFileListener(virtualFileListener);
+                return;
+            }
+
+            if (MICRO_MODULES.equals(event.getFile().getName())) {
+                if (event.getParent() != null) {
+                    if (IDEA.equals(event.getParent().getName())) {
+                        refreshMicroModule();
+                    }
+                }
+            }
+        }
+    };
 
     MicroModuleService(Project project) {
         this.project = project;
         microModules = loadMicroModules();
-        VirtualFileManager.getInstance().addVirtualFileListener(new VirtualFileListener() {
-            @Override
-            public void contentsChanged(@NotNull VirtualFileEvent event) {
-                if (MICRO_MODULES.equals(event.getFile().getName())) {
-                    if (event.getParent() != null) {
-                        if (IDEA.equals(event.getParent().getName())) {
-                            refreshMicroModule();
-                        }
-                    }
-                }
-            }
-        });
+
+        VirtualFileManager.getInstance().addVirtualFileListener(virtualFileListener);
     }
 
     public List<MicroModuleInfo> getMicroModules(Module module) {
