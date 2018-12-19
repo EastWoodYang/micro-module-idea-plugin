@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.eastwood.tools.idea.micromodule</id>
   <name>MicroModule</name>
-  <version>1.2.1</version>
+  <version>1.2.2</version>
   <vendor email="ycdyng@gmail.com" url="https://github.com/EastWoodYang">EastWood Yang</vendor>
 
   <description><![CDATA[
