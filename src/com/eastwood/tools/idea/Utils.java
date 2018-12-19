@@ -4,19 +4,6 @@ import java.io.*;
 
 public class Utils {
 
-    public static boolean isAndroidModule(File buildFile) {
-        if (!buildFile.exists()) {
-            return false;
-        }
-
-        String buildContent = read(buildFile);
-        if (buildContent.contains("'com.android.application'") || buildContent.contains("'com.android.library'")) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     public static void createMicroModule(File moduleDir, String microModuleName, String packageName) {
         File microModuleDir = new File(moduleDir, microModuleName);
         microModuleDir.mkdirs();
@@ -75,28 +62,6 @@ public class Utils {
         } else {
             addMicroModuleExtension(buildFile, microModuleName);
         }
-    }
-
-    public static void addMicroModuleClasspath(File buildFile) {
-        if (!buildFile.exists()) {
-            return;
-        }
-
-        StringBuilder result = new StringBuilder();
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(buildFile));
-            String s = null;
-            while ((s = br.readLine()) != null) {
-                if (s.contains("classpath 'com.android.tools.build")) {
-                    s = s + System.lineSeparator() + "        classpath 'com.eastwood.tools.plugins:micro-module:1.2.0'";
-                }
-                result.append(s + System.lineSeparator());
-            }
-            br.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Utils.write(buildFile, result.toString());
     }
 
     public static void applyMicroModulePlugin(File buildFile) {
