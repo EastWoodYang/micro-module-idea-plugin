@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>com.eastwood.tools.idea.micromodule</id>
     <name>MicroModule</name>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <vendor email="ycdyng@gmail.com" url="https://github.com/EastWoodYang">EastWood Yang</vendor>
 
     <description><![CDATA[
@@ -12,7 +12,7 @@
 
     <change-notes>
         <![CDATA[
-      1. add 'Convert to ModuleModule'.<br>
+      1. add 'Convert to ModuleModule' action.<br>
       2. remove "New Project/Module with MicroModule..." action.<br>
       3. fix project is disposed bug.<br>
       ]]>
