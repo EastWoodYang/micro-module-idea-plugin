@@ -25,11 +25,15 @@
          on how to target different products -->
     <depends>com.intellij.modules.lang</depends>
     <depends>org.jetbrains.android</depends>
+    <depends>org.jetbrains.kotlin</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <projectService serviceInterface="com.eastwood.tools.idea.MicroModuleService"
                         serviceImplementation="com.eastwood.tools.idea.MicroModuleService"/>
-        <gotoDeclarationHandler implementation="com.eastwood.tools.idea.AndroidGotoDeclarationHandler"/>
+        <gotoDeclarationHandler implementation="com.eastwood.tools.idea.declaration.AndroidGotoDeclarationHandler"
+                                order="last"/>
+        <gotoDeclarationHandler implementation="com.eastwood.tools.idea.declaration.KotlinAndroidGotoDeclarationHandler"
+                                order="last"/>
         <editorNotificationProvider implementation="com.eastwood.tools.idea.MicroModuleNotificationProvider"/>
     </extensions>
 
