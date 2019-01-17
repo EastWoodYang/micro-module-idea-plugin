@@ -1,10 +1,16 @@
 package com.eastwood.tools.idea.declaration;
 
 import com.android.ide.common.rendering.api.ResourceNamespace;
+import com.android.resources.ResourceType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.psi.*;
+import org.jetbrains.android.dom.resources.Attr;
+import org.jetbrains.android.dom.resources.DeclareStyleable;
 import org.jetbrains.android.facet.AndroidFacet;
+import org.jetbrains.android.resourceManagers.LocalResourceManager;
+import org.jetbrains.android.resourceManagers.ModuleResourceManagers;
+import org.jetbrains.android.resourceManagers.ResourceManager;
 import org.jetbrains.android.util.AndroidResourceUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.idea.references.ReferenceUtilKt;
@@ -12,6 +18,9 @@ import org.jetbrains.kotlin.psi.KtDotQualifiedExpression;
 import org.jetbrains.kotlin.psi.KtExpression;
 import org.jetbrains.kotlin.psi.KtSimpleNameExpression;
 import org.jetbrains.kotlin.psi.psiUtil.KtPsiUtilKt;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class GotoResourceHelper {
 
@@ -127,6 +136,46 @@ public class GotoResourceHelper {
             }
         }
         return false;
+    }
+
+    public static PsiElement[] getGotoDeclarationTargets(AndroidFacet facet, AndroidResourceUtil.MyReferredResourceFieldInfo info, PsiElement refExp) {
+        String nestedClassName = info.getClassName();
+        String fieldName = info.getFieldName();
+        List<PsiElement> resourceList = new ArrayList();
+        if (info.isFromManifest()) {
+            return null;
+        }
+
+        ModuleResourceManagers resourceManagers = ModuleResourceManagers.getInstance(facet);
+        ResourceManager manager = info.getNamespace() == ResourceNamespace.ANDROID ? resourceManagers.getFrameworkResourceManager(false) : resourceManagers.getLocalResourceManager();
+        if (manager == null) {
+            return null;
+        }
+
+        manager.collectLazyResourceElements(info.getNamespace(), nestedClassName, fieldName, false, refExp, resourceList);
+
+        if (manager instanceof LocalResourceManager) {
+            LocalResourceManager lrm = (LocalResourceManager) manager;
+            if (nestedClassName.equals(ResourceType.ATTR.getName())) {
+                for (Attr attr : lrm.findAttrs(info.getNamespace(), fieldName)) {
+                    resourceList.add(attr.getName().getXmlAttributeValue());
+                }
+            } else if (nestedClassName.equals(ResourceType.STYLEABLE.getName())) {
+                for (DeclareStyleable styleable : lrm.findStyleables(info.getNamespace(), fieldName)) {
+                    resourceList.add(styleable.getName().getXmlAttributeValue());
+                }
+
+                for (Attr styleable : lrm.findStyleableAttributesByFieldName(info.getNamespace(), fieldName)) {
+                    resourceList.add(styleable.getName().getXmlAttributeValue());
+                }
+            }
+        }
+
+        if (resourceList.size() > 1) {
+            resourceList.sort(AndroidResourceUtil.RESOURCE_ELEMENT_COMPARATOR);
+        }
+
+        return resourceList.toArray(new PsiElement[resourceList.size()]);
     }
 
 }
