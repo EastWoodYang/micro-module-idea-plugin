@@ -24,11 +24,15 @@
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
   <depends>org.jetbrains.android</depends>
+    <depends>org.jetbrains.kotlin</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <projectService serviceInterface="com.eastwood.tools.idea.MicroModuleService"
                     serviceImplementation="com.eastwood.tools.idea.MicroModuleService"/>
-    <gotoDeclarationHandler implementation="com.eastwood.tools.idea.AndroidGotoDeclarationHandler"/>
+      <gotoDeclarationHandler implementation="com.eastwood.tools.idea.declaration.AndroidGotoDeclarationHandler"
+                              order="last"/>
+      <gotoDeclarationHandler implementation="com.eastwood.tools.idea.declaration.KotlinAndroidGotoDeclarationHandler"
+                              order="last"/>
     <editorNotificationProvider implementation="com.eastwood.tools.idea.MicroModuleNotificationProvider"/>
   </extensions>
 
