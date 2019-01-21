@@ -23,7 +23,8 @@ public class ConvertToMicroModuleAction extends AnAction {
         if (module != null && file != null && module.getName().equals(file.getName()) && !file.getName().equals(e.getProject().getName())) {
             e.getPresentation().setVisible(true);
             File srcDir = new File(file.getPath(), "src");
-            if (srcDir.exists()) {
+            File mainDir = new File(file.getPath(), "main");
+            if (srcDir.exists() && !mainDir.exists()) {
                 e.getPresentation().setEnabled(true);
             } else {
                 e.getPresentation().setEnabled(false);
