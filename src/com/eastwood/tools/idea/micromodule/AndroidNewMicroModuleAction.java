@@ -22,25 +22,42 @@ public class AndroidNewMicroModuleAction extends AnAction {
         super.update(e);
         DataContext dataContext = e.getDataContext();
         Module module = DataKeys.MODULE.getData(dataContext);
-
         VirtualFile file = DataKeys.VIRTUAL_FILE.getData(dataContext);
-        if (module != null && file != null && module.getName().equals(file.getName()) && !file.getName().equals(e.getProject().getName())) {
-            e.getPresentation().setVisible(true);
-            File buildFile = new File(file.getPath(), "build.gradle");
-            if(buildFile.exists()) {
-                String content = Utils.read(buildFile);
-                if (content.contains("micro-module")) {
-                    e.getPresentation().setEnabled(true);
+        if (module != null && module.getModuleFile() != null && file != null) {
+            if (module.getModuleFile().getParent().getCanonicalPath().equals(file.getPath())) {
+                if (file.getName().equals(e.getProject().getName())) {
+                    e.getPresentation().setVisible(false);
+                    return;
+                }
+                File buildFile = new File(file.getPath(), "build.gradle");
+                if (buildFile.exists()) {
+                    boolean hasAppliedPlugin = false;
+                    String content = Utils.read(buildFile);
+                    if (content != null) {
+                        String[] lines = content.split(System.lineSeparator());
+                        for (String line : lines) {
+                            line = line.trim();
+                            if (line.contains("micro-module") && line.startsWith("apply")) {
+                                hasAppliedPlugin = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (hasAppliedPlugin) {
+                        e.getPresentation().setVisible(true);
+                        e.getPresentation().setEnabled(true);
+                    } else {
+                        e.getPresentation().setVisible(false);
+                    }
                 } else {
-                    e.getPresentation().setEnabled(false);
+                    e.getPresentation().setVisible(false);
                 }
             } else {
-                e.getPresentation().setEnabled(false);
+                e.getPresentation().setVisible(false);
             }
         } else {
             e.getPresentation().setVisible(false);
         }
-
     }
 
     @Override
