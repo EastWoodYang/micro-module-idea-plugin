@@ -2,6 +2,7 @@ package com.eastwood.tools.idea.convert;
 
 import com.android.tools.idea.gradle.project.sync.GradleSyncInvoker;
 import com.eastwood.tools.idea.Utils;
+import com.google.wireless.android.sdk.stats.GradleSyncStats;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -41,7 +42,7 @@ public class ConvertToMicroModuleAction extends AnAction {
         File moduleFile = new File(module.getModuleFilePath());
         convertToMicroModule(moduleFile.getParentFile());
         module.getProject().getBaseDir().refresh(true, true);
-        GradleSyncInvoker.getInstance().requestProjectSync(module.getProject(), GradleSyncInvoker.Request.projectModified());
+        GradleSyncInvoker.getInstance().requestProjectSync(module.getProject(), new GradleSyncInvoker.Request(GradleSyncStats.Trigger.TRIGGER_PROJECT_MODIFIED));
     }
 
     private void convertToMicroModule(File moduleDir) {

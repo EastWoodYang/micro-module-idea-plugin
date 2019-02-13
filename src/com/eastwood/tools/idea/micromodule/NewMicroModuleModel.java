@@ -6,6 +6,7 @@ import com.android.tools.idea.observable.core.StringValueProperty;
 import com.android.tools.idea.wizard.model.WizardModel;
 import com.eastwood.tools.idea.MicroModuleService;
 import com.eastwood.tools.idea.Utils;
+import com.google.wireless.android.sdk.stats.GradleSyncStats;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.module.Module;
 
@@ -54,7 +55,7 @@ public class NewMicroModuleModel extends WizardModel {
         File buildFile = new File(moduleDir, "build.gradle");
         Utils.includeMicroModule(buildFile, myMicroModuleName.get());
         module.getProject().getBaseDir().refresh(true, true);
-        GradleSyncInvoker.getInstance().requestProjectSync(module.getProject(), GradleSyncInvoker.Request.projectModified());
+        GradleSyncInvoker.getInstance().requestProjectSync(module.getProject(), new GradleSyncInvoker.Request(GradleSyncStats.Trigger.TRIGGER_PROJECT_MODIFIED));
     }
 
 }
