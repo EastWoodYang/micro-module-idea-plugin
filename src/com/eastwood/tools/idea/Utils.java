@@ -87,12 +87,7 @@ public class Utils {
     }
 
     public static void addMicroModuleBuildScript(File buildFile) {
-        String buildScript = "// MicroModule build file where you can add configuration options to publish MicroModule(aar) to Maven \n" +
-                "// and declare MicroModule dependencies.\n" +
-                "\n" +
-                "microModule {\n" +
-                "\n" +
-                "}\n" +
+        String buildScript = "// MicroModule build file where you can declare MicroModule dependencies.\n" +
                 "\n" +
                 "dependencies {\n" +
                 "    implementation fileTree(dir: '" + buildFile.getParentFile().getName() + "/libs', include: ['*.jar'])\n" +
