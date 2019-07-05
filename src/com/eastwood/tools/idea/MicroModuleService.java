@@ -115,7 +115,6 @@ public class MicroModuleService {
                     MicroModuleInfo microModule = new MicroModuleInfo();
                     microModule.name = microModuleElement.getAttribute("name");
                     microModule.path = microModuleElement.getAttribute("path").replace('\\', '/');
-                    microModule.useMavenArtifact = Boolean.valueOf(microModuleElement.getAttribute("useMavenArtifact"));
                     microModuleMap.add(microModule);
                 }
                 microModuleInfoMap.put(modulePath, microModuleMap);
@@ -159,7 +158,6 @@ public class MicroModuleService {
                     MicroModuleInfo microModule = new MicroModuleInfo();
                     microModule.name = microModuleElement.getAttribute("name");
                     microModule.path = microModuleElement.getAttribute("path").replace('\\', '/');
-                    microModule.useMavenArtifact = Boolean.valueOf(microModuleElement.getAttribute("useMavenArtifact"));
                     microModuleList.add(microModule);
                 }
             }
