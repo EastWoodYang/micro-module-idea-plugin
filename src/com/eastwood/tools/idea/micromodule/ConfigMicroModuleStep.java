@@ -34,23 +34,32 @@ public class ConfigMicroModuleStep extends SkippableWizardStep<NewMicroModuleMod
         this.myListeners = new ListenerManager();
 
         TextProperty moduleNameText = new TextProperty(this.myMicroModuleName);
-        this.myValidatorPanel.registerValidator(moduleNameText, (value) -> {
-            if (value.isEmpty()) {
-                return new Validator.Result(Validator.Severity.ERROR, AndroidBundle.message("android.wizard.validate.empty.module.name", new Object[0]));
-            } else if (model.validateMicroModuleName(value)) {
-                return new Validator.Result(Validator.Severity.ERROR, AndroidBundle.message("android.wizard.validate.module.already.exists", new Object[]{value}));
-            } else {
-                int illegalCharIdx = CharMatcher.anyOf("[/\\'.").indexIn(value);
-                return illegalCharIdx >= 0 ? new Validator.Result(Validator.Severity.ERROR, AndroidBundle.message("android.wizard.validate.module.illegal.character", new Object[]{value.charAt(illegalCharIdx), value})) : Validator.Result.OK;
+        this.myValidatorPanel.registerValidator(moduleNameText, new Validator<String>() {
+            @NotNull
+            @Override
+            public Result validate(String value) {
+                if (value.isEmpty()) {
+                    return new Validator.Result(Validator.Severity.ERROR, AndroidBundle.message("android.wizard.validate.empty.module.name", new Object[0]));
+                } else if (model.validateMicroModuleName(value)) {
+                    return new Validator.Result(Validator.Severity.ERROR, AndroidBundle.message("android.wizard.validate.module.already.exists", new Object[]{value}));
+                } else {
+                    int illegalCharIdx = CharMatcher.anyOf("[/\\'.").indexIn(value);
+                    return illegalCharIdx >= 0 ? new Validator.Result(Validator.Severity.ERROR, AndroidBundle.message("android.wizard.validate.module.illegal.character", new Object[]{value.charAt(illegalCharIdx), value})) : Validator.Result.OK;
+                }
             }
         });
 
+
         TextProperty packageNameText = new TextProperty(this.myPackageName);
-        this.myValidatorPanel.registerValidator(packageNameText, (value) -> {
-            if (model.validatePackageName(value)) {
-                return new Validator.Result(Validator.Severity.ERROR, "Package name \"" + value + "\" already exists.");
-            } else {
-                return Validator.Result.fromNullableMessage(WizardUtils.validatePackageName(value));
+        this.myValidatorPanel.registerValidator(packageNameText, new Validator<String>() {
+            @NotNull
+            @Override
+            public Result validate(String value) {
+                if (model.validatePackageName(value)) {
+                    return new Validator.Result(Validator.Severity.ERROR, "Package name \"" + value + "\" already exists.");
+                } else {
+                    return Validator.Result.fromNullableMessage(WizardUtils.validatePackageName(value));
+                }
             }
         });
 

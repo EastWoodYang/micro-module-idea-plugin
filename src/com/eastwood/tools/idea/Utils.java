@@ -1,5 +1,9 @@
 package com.eastwood.tools.idea;
 
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.vfs.VirtualFile;
+
 import java.io.*;
 
 public class Utils {
@@ -200,6 +204,15 @@ public class Utils {
             e.printStackTrace();
         }
         return result.toString();
+    }
+
+    public static File getModuleDir(Module module) {
+        VirtualFile[] contentRoots = ModuleRootManager.getInstance(module).getContentRoots();
+        if (contentRoots.length > 0) {
+            return new File(contentRoots[0].getCanonicalPath());
+        } else {
+            return new File(module.getModuleFile().getParent().getCanonicalPath());
+        }
     }
 
 }

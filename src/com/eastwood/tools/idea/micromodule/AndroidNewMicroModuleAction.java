@@ -4,10 +4,7 @@ import com.android.tools.idea.ui.wizard.StudioWizardDialogBuilder;
 import com.android.tools.idea.wizard.model.ModelWizard;
 import com.android.tools.idea.wizard.model.ModelWizardStep;
 import com.eastwood.tools.idea.Utils;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.android.util.AndroidBundle;
@@ -21,10 +18,10 @@ public class AndroidNewMicroModuleAction extends AnAction {
     public void update(AnActionEvent e) {
         super.update(e);
         DataContext dataContext = e.getDataContext();
-        Module module = DataKeys.MODULE.getData(dataContext);
-        VirtualFile file = DataKeys.VIRTUAL_FILE.getData(dataContext);
+        Module module = LangDataKeys.MODULE.getData(dataContext);
+        VirtualFile file = CommonDataKeys.VIRTUAL_FILE.getData(dataContext);
         if (module != null && module.getModuleFile() != null && file != null) {
-            if (module.getModuleFile().getParent().getCanonicalPath().equals(file.getPath())) {
+            if (Utils.getModuleDir(module).getPath().equals(file.getPath())) {
                 if (file.getName().equals(e.getProject().getName())) {
                     e.getPresentation().setVisible(false);
                     return;
@@ -63,7 +60,7 @@ public class AndroidNewMicroModuleAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
         DataContext dataContext = e.getDataContext();
-        Module module = DataKeys.MODULE.getData(dataContext);
+        Module module = LangDataKeys.MODULE.getData(dataContext);
         NewMicroModuleModel microModuleModel = new NewMicroModuleModel(module);
         ConfigMicroModuleStep configMicroModuleStep = new ConfigMicroModuleStep(microModuleModel, "New MicroModule");
         ModelWizard wizard = (new ModelWizard.Builder(new ModelWizardStep[0])).addStep(configMicroModuleStep).build();
@@ -77,7 +74,7 @@ public class AndroidNewMicroModuleAction extends AnAction {
             }
         });
 
-        (new StudioWizardDialogBuilder(wizard, AndroidBundle.message("android.wizard.module.new.module.title", new Object[0]))).setUxStyle(StudioWizardDialogBuilder.UxStyle.ORIGINAL).build().show();
+        (new StudioWizardDialogBuilder(wizard, AndroidBundle.message("android.wizard.module.new.module.title", new Object[0]))).build().show();
     }
 
 }

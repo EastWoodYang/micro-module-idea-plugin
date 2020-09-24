@@ -9,6 +9,7 @@ import com.eastwood.tools.idea.Utils;
 import com.google.wireless.android.sdk.stats.GradleSyncStats;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.vfs.VirtualFileManager;
 
 import java.io.File;
 import java.util.List;
@@ -25,8 +26,7 @@ public class NewMicroModuleModel extends WizardModel {
 
     public NewMicroModuleModel(Module module) {
         this.module = module;
-        File moduleFile = new File(module.getModuleFilePath());
-        moduleDir = moduleFile.getParentFile();
+        moduleDir = Utils.getModuleDir(module);
 
         MicroModuleService microModuleService = ServiceManager.getService(module.getProject(), MicroModuleService.class);
         microModulePackageNames = microModuleService.getMicroModulePackageNames(module);
@@ -54,8 +54,12 @@ public class NewMicroModuleModel extends WizardModel {
         Utils.createMicroModule(moduleDir, myMicroModuleName.get(), myPackageName.get());
         File buildFile = new File(moduleDir, "build.gradle");
         Utils.includeMicroModule(buildFile, myMicroModuleName.get());
-        module.getProject().getBaseDir().refresh(true, true);
-        GradleSyncInvoker.getInstance().requestProjectSync(module.getProject(), new GradleSyncInvoker.Request(GradleSyncStats.Trigger.TRIGGER_PROJECT_MODIFIED));
+        VirtualFileManager.getInstance().asyncRefresh(new Runnable() {
+            @Override
+            public void run() {
+                GradleSyncInvoker.getInstance().requestProjectSync(module.getProject(), new GradleSyncInvoker.Request(GradleSyncStats.Trigger.TRIGGER_PROJECT_MODIFIED));
+            }
+        });
     }
 
 }

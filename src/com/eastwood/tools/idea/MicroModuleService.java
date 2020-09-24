@@ -53,8 +53,7 @@ public class MicroModuleService {
     }
 
     public List<MicroModuleInfo> getMicroModules(Module module) {
-        File moduleFile = new File(module.getModuleFilePath());
-        String modulePath = moduleFile.getParent().replace('\\', '/');
+        String modulePath = Utils.getModuleDir(module).getPath().replace('\\', '/');
         if (microModules.isEmpty()) {
             microModules = loadMicroModules();
         }
