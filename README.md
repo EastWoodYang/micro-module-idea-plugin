@@ -23,3 +23,6 @@ Provides an action which allow you quickly create MicroModule or convert module 
     2. Open Module Settings.
     3. New IntelliJ Platform Plugin SDK, select Android Studio install directory as its Home Directory.
     4. Add Classpath 'android.jar' and 'adt-ui.jar', which under Android Studio 'plugins/android/lib'.
+
+## Question or Idea
+有问题或想法可以直接加我微信: EastWoodYang
