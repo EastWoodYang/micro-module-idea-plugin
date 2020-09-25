@@ -53,11 +53,12 @@ public class MicroModuleService {
     }
 
     public List<MicroModuleInfo> getMicroModules(Module module) {
-        String modulePath = Utils.getModuleDir(module).getPath().replace('\\', '/');
+        File moduleDir = Utils.getModuleDir(module);
+        VirtualFile moduleVirtualDir = LocalFileSystem.getInstance().findFileByIoFile(moduleDir);
         if (microModules.isEmpty()) {
             microModules = loadMicroModules();
         }
-        return microModules.get(modulePath);
+        return microModules.get(moduleVirtualDir.getCanonicalPath());
     }
 
     public List<String> getMicroModulePackageNames(Module module) {

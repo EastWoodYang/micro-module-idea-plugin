@@ -6,6 +6,7 @@ import com.android.tools.idea.wizard.model.ModelWizardStep;
 import com.eastwood.tools.idea.Utils;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.android.util.AndroidBundle;
 import org.jetbrains.annotations.NotNull;
@@ -19,9 +20,12 @@ public class AndroidNewMicroModuleAction extends AnAction {
         super.update(e);
         DataContext dataContext = e.getDataContext();
         Module module = LangDataKeys.MODULE.getData(dataContext);
+
         VirtualFile file = CommonDataKeys.VIRTUAL_FILE.getData(dataContext);
         if (module != null && module.getModuleFile() != null && file != null) {
-            if (Utils.getModuleDir(module).getPath().equals(file.getPath())) {
+            File moduleDir = Utils.getModuleDir(module);
+            VirtualFile moduleVirtualDir = LocalFileSystem.getInstance().findFileByIoFile(moduleDir);
+            if (moduleVirtualDir.getPath().equals(file.getPath())) {
                 if (file.getName().equals(e.getProject().getName())) {
                     e.getPresentation().setVisible(false);
                     return;
