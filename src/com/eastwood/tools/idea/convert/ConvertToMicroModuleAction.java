@@ -5,6 +5,7 @@ import com.eastwood.tools.idea.Utils;
 import com.google.wireless.android.sdk.stats.GradleSyncStats;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 
@@ -19,7 +20,10 @@ public class ConvertToMicroModuleAction extends AnAction {
         Module module = LangDataKeys.MODULE.getData(dataContext);
 
         VirtualFile file = CommonDataKeys.VIRTUAL_FILE.getData(dataContext);
-        if (module != null && file != null && module.getName().equals(file.getName()) && !file.getName().equals(e.getProject().getName())) {
+
+        File moduleDir = Utils.getModuleDir(module);
+        VirtualFile moduleVirtualDir = LocalFileSystem.getInstance().findFileByIoFile(moduleDir);
+        if (moduleVirtualDir != null && file != null && moduleVirtualDir.getPath().equals(file.getPath())) {
             e.getPresentation().setVisible(true);
             File srcDir = new File(file.getPath(), "src");
             File mainDir = new File(file.getPath(), "main");

@@ -1,7 +1,7 @@
 <idea-plugin>
   <id>com.eastwood.tools.idea.micromodule</id>
   <name>MicroModule</name>
-  <version>1.4.1</version>
+  <version>1.4.2</version>
   <vendor email="ycdyng@gmail.com" url="https://github.com/EastWoodYang">EastWood Yang</vendor>
 
   <description><![CDATA[
@@ -12,16 +12,17 @@
 
   <change-notes>
       <![CDATA[
-       1. Fix bug on Android Studio 3.6 and 4.0<br>
+       1. Fix bug on Android Studio 4.1<br>
       ]]>
   </change-notes>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
-  <idea-version since-build="192"/>
+  <idea-version since-build="201"/>
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
        on how to target different products -->
   <depends>org.jetbrains.android</depends>
+  <depends>com.intellij.modules.androidstudio</depends>
 
   <extensions defaultExtensionNs="com.intellij">
     <projectService serviceInterface="com.eastwood.tools.idea.MicroModuleService"

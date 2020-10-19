@@ -9,7 +9,6 @@ import com.android.tools.idea.observable.ui.TextProperty;
 import com.android.tools.idea.ui.wizard.StudioWizardStepPanel;
 import com.android.tools.idea.ui.wizard.WizardUtils;
 import com.android.tools.idea.wizard.model.SkippableWizardStep;
-import com.google.common.base.CharMatcher;
 import org.jetbrains.android.util.AndroidBundle;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,7 +42,15 @@ public class ConfigMicroModuleStep extends SkippableWizardStep<NewMicroModuleMod
                 } else if (model.validateMicroModuleName(value)) {
                     return new Validator.Result(Validator.Severity.ERROR, AndroidBundle.message("android.wizard.validate.module.already.exists", new Object[]{value}));
                 } else {
-                    int illegalCharIdx = CharMatcher.anyOf("[/\\'.").indexIn(value);
+                    int illegalCharIdx = -1;
+                    String[] illegalChars = new String[]{"[", "/", "\\", "'", "."};
+                    for (int i = 0; i < illegalChars.length; i++) {
+                        int index = value.indexOf(illegalChars[i]);
+                        if(index >=0) {
+                            illegalCharIdx = index;
+                            break;
+                        }
+                    }
                     return illegalCharIdx >= 0 ? new Validator.Result(Validator.Severity.ERROR, AndroidBundle.message("android.wizard.validate.module.illegal.character", new Object[]{value.charAt(illegalCharIdx), value})) : Validator.Result.OK;
                 }
             }
